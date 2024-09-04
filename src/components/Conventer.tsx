@@ -50,8 +50,6 @@ const Conventer = () => {
             const data: ConvertResponse = await response.json();
             const toAmount = data.response.value.toString();
             setValue(toAmount);
-
-            // add history
             setNewHistory(from, amount, to, toAmount);
         } catch (err: unknown) {
             console.log(err);
@@ -80,12 +78,13 @@ const Conventer = () => {
         <br/>
         <Select selected={to} setSelected={setTo} options={currencies} label={'To'} />
         <Input setValue={setToAmount} value={toAmount} readOnly={true} />
+        <br/>
 
 
-        <>
-        History
-        { history.map(({ from, fromAmount, to, toAmount }) => <p key={`${fromAmount}${from}-${toAmount}${to}`}>From: {fromAmount} {from} - To: {toAmount} {to}</p>)}
-        </>
+        { !!history.length && <>
+            History:
+            { history.map(({ from, fromAmount, to, toAmount }) => <p key={`${fromAmount}${from}-${toAmount}${to}`}>From: {fromAmount} {from} - To: {toAmount} {to}</p>)}
+        </> }
     </>)
 }
 
