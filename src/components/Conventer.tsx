@@ -4,12 +4,26 @@ import Select from "./CurrencySelect";
 import Input from "./Input";
 import useDebouncedValue from "../hooks/debounce";
 
+interface ConvertHistory {
+    from: string;
+    fromAmount: string;
+    to: string;
+    toAmount: string;
+}
+
 const Conventer = () => {
     const [from, setFrom] = useState<string>('')
     const [fromAmount, setFromAmount] = useState<string>('');
     const [to, setTo] = useState<string>('');
     const [toAmount, setToAmount] = useState<string>('')
     const [currencies, setCurrencies] = useState<Currency[]>([]);
+
+    const [history, setHistory] = useState<ConvertHistory[]>([]);
+
+    const setNewHistory = (from: string, to: string, fromAmount: string, toAmount: string, maxHistory: number = import.meta.env.VITE_MAX_HISTORY_NUMBER) => {
+        const data = { from, fromAmount, to, toAmount};
+        setHistory((prev) => [data, ...prev.slice(0, maxHistory - 1)]);
+    };
 
     const debouncedFromAmount = useDebouncedValue(fromAmount, 500);
 
@@ -34,7 +48,11 @@ const Conventer = () => {
         try {
             const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/convert?api_key=${import.meta.env.VITE_API_KEY}&from=${from}&to=${to}&amount=${amount}`, { signal });
             const data: ConvertResponse = await response.json();
-            setValue(data.response.value.toString());
+            const toAmount = data.response.value.toString();
+            setValue(toAmount);
+
+            // add history
+            setNewHistory(from, amount, to, toAmount);
         } catch (err: unknown) {
             console.log(err);
         }
@@ -62,6 +80,12 @@ const Conventer = () => {
         <br/>
         <Select selected={to} setSelected={setTo} options={currencies} label={'To'} />
         <Input setValue={setToAmount} value={toAmount} readOnly={true} />
+
+
+        <>
+        History
+        { history.map(({ from, fromAmount, to, toAmount }) => <p key={`${fromAmount}${from}-${toAmount}${to}`}>From: {fromAmount} {from} - To: {toAmount} {to}</p>)}
+        </>
     </>)
 }
 

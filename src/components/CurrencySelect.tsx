@@ -17,7 +17,7 @@ const Select = ({ selected, setSelected, options, label }: SelectProps) => {
             onChange={e => setSelected(e.target.value)}
         >
             <option value={""}>Choose option</option>
-            { options.map(({ short_code, name }) => <option value={short_code}>{ name } ({short_code})</option>)}
+            { options.map(({ short_code, name }) => <option value={short_code} key={short_code}>{ name } ({short_code})</option>)}
         </select>
     </>);
 }
